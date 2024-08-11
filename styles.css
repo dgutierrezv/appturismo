@@ -1,0 +1,247 @@
+/* styles.css */
+
+/* Estilo general */
+body {
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f7f7f7;
+    color: #333;
+    min-height: 100vh;
+}
+
+/* Encabezado */
+header {
+    background: linear-gradient(135deg, #6c63ff, #3f3d56);
+    color: white;
+    width: 100%;
+    text-align: center;
+    padding: 2rem 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-bottom-left-radius: 50% 20px;
+    border-bottom-right-radius: 50% 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* Sección principal */
+main {
+    width: 100%;
+    max-width: 1000px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Sección de la cámara */
+#camera-section {
+    width: 100%;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+#video {
+    border-radius: 20px;
+    width: 100%;
+    max-width: 640px;
+    border: 5px solid #6c63ff;
+}
+
+#canvas {
+    display: none;
+}
+
+button {
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 0.75rem 2.5rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:hover {
+    background-color: #5a54e2;
+    transform: translateY(-3px);
+}
+
+button:active {
+    background-color: #4944b7;
+    transform: translateY(0);
+}
+
+/* Sección de la información */
+#info-section {
+    width: 100%;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+#info-section h2 {
+    margin-top: 0;
+    font-size: 2rem;
+    color: #6c63ff;
+    border-bottom: 3px solid #6c63ff;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#location-info, #historical-info, #past-images {
+    margin: 1rem 0;
+}
+
+#location-info {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+#historical-info {
+    line-height: 1.8;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+#past-images img {
+    width: 100%;
+    max-width: 220px;
+    border-radius: 20px;
+    margin: 0.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+#past-images img:hover {
+    transform: scale(1.08);
+}
+
+#past-images {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+/* Añadir efecto de desplazamiento para la sección de la cámara */
+#camera-section::before {
+    content: "";
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 6px;
+    background-color: #6c63ff;
+    border-radius: 50px;
+    box-shadow: 0 3px 10px rgba(108, 99, 255, 0.3);
+}
+
+/* Adaptaciones responsivas */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    #camera-section {
+        padding: 1.5rem;
+    }
+
+    #info-section {
+        padding: 1.5rem;
+    }
+
+    button {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    main {
+        width: 90%;
+    }
+
+    header h1 {
+        font-size: 1.75rem;
+    }
+
+    #video {
+        max-width: 100%;
+    }
+
+    #past-images img {
+        max-width: 100px;
+    }
+
+    button {
+        padding: 0.5rem 1.5rem;
+    }
+}
+
+/* Estilos para la fila de imágenes históricas */
+.historical-images-row {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+}
+
+.historical-image {
+    text-align: center;
+    margin: 0 10px;
+}
+
+.historical-image img {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.historical-image img:hover {
+    transform: scale(1.05);
+}
+
+.historical-image p {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #555;
+}
+
+/* Adaptaciones responsivas */
+@media (max-width: 768px) {
+    .historical-images-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .historical-image {
+        margin: 10px 0;
+    }
+}

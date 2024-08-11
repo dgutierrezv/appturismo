@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turismo Inteligente</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Turismo Inteligente</h1>
+    </header>
+    <main>
+        <section id="camera-section">
+            <video id="video" width="640" height="480" autoplay></video>
+            <button id="snap">Capturar</button>
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </section>
+        <section id="info-section">
+            <h2>Información del lugar</h2>
+            <div id="location-info"></div>
+            <div id="historical-info"></div>
+            <div id="past-images"></div>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
