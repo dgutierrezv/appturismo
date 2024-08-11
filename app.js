@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Configuración para acceder a la cámara trasera en dispositivos móviles
     const constraints = {
         video: {
-            facingMode: {
-                exact: "environment"
-            }
+            facingMode: "environment",
+            width: { ideal: 640 },
+            height: { ideal: 480 }
         }
     };
 
@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         navigator.mediaDevices.getUserMedia(constraints)
             .then((stream) => {
                 video.srcObject = stream;
+                video.play();
             })
             .catch((err) => {
                 console.error("Error al acceder a la cámara: " + err);
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     navigator.mediaDevices.getUserMedia({ video: true })
                         .then((stream) => {
                             video.srcObject = stream;
+                            video.play();
                         })
                         .catch((error) => {
                             console.error("Error al acceder a la cámara sin facingMode: " + error);
