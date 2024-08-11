@@ -17,39 +17,39 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     };
 
-    // Manejar accesos para diferentes dispositivos
     function handleCameraAccess() {
         navigator.mediaDevices.getUserMedia(constraints)
             .then((stream) => {
                 video.srcObject = stream;
                 video.play();
+                console.log("Cámara accedida correctamente.");
             })
             .catch((err) => {
                 console.error("Error al acceder a la cámara: " + err);
-                // Intentar de nuevo sin especificar "facingMode"
-                if (err.name === "OverconstrainedError" || err.name === "NotAllowedError") {
-                    navigator.mediaDevices.getUserMedia({ video: true })
-                        .then((stream) => {
-                            video.srcObject = stream;
-                            video.play();
-                        })
-                        .catch((error) => {
-                            console.error("Error al acceder a la cámara sin facingMode: " + error);
-                            alert("No se pudo acceder a la cámara. Por favor, verifica los permisos.");
-                        });
-                }
+                alert("No se pudo acceder a la cámara. Por favor, verifica los permisos.");
             });
     }
 
     // Llamar a la función para manejar la cámara
     handleCameraAccess();
 
-    // Capturar la imagen
+    // Capturar la imagen al hacer clic en el botón
     snapButton.addEventListener('click', () => {
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = canvas.toDataURL('image/png');
-        processImage(imageData);
+        console.log("Botón de captura presionado.");
+
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            console.log("El video está listo. Capturando imagen...");
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/png');
+            console.log("Imagen capturada. Procesando imagen...");
+
+            processImage(imageData);
+        } else {
+            alert("La cámara aún no está lista. Intenta de nuevo en un momento.");
+        }
     });
 
     // Obtener ubicación GPS
@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
             locationInfo.innerHTML = `Latitud: ${latitude}, Longitud: ${longitude}`;
+            console.log(`Ubicación obtenida: Latitud ${latitude}, Longitud ${longitude}`);
         }, (err) => {
             console.error("Error al obtener la ubicación GPS: " + err);
         });
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Procesar la imagen con el backend
     async function processImage(imageData) {
         try {
-            const response = await fetch('http://localhost:3000/process-image', {
+            const response = await fetch('/api/process-image', {
                 method: 'POST',
                 body: JSON.stringify({ imageData: imageData.split(',')[1] }),
                 headers: {
@@ -77,16 +78,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
             });
 
             const data = await response.json();
-            // Aquí manejas la respuesta que viene del backend...
+            console.log("Respuesta recibida del backend:", data);
+
+            // Supongamos que el backend devuelve información sobre el lugar detectado
+            if (data.responses[0].landmarkAnnotations && data.responses[0].landmarkAnnotations.length > 0) {
+                const landmark = data.responses[0].landmarkAnnotations[0];
+                historicalInfo.innerHTML = `Lugar detectado: ${landmark.description}`;
+                console.log("Lugar detectado:", landmark.description);
+
+                // Llama a la función para obtener la reseña histórica y las imágenes
+                translateToSpanish(landmark.description);
+            } else {
+                historicalInfo.innerHTML = "No se detectaron puntos de referencia en la imagen.";
+                pastImages.innerHTML = ""; // Limpiar imágenes anteriores
+                console.log("No se detectaron puntos de referencia en la imagen.");
+            }
+
         } catch (error) {
             console.error("Error al procesar la imagen:", error);
+            historicalInfo.innerHTML = "Error al procesar la imagen. Por favor, intente de nuevo.";
         }
     }
 
     // Traducir el nombre del lugar al español usando el backend
     async function translateToSpanish(englishText) {
         try {
-            const response = await fetch('http://localhost:3000/translate', {
+            const response = await fetch('/api/translate', {
                 method: 'POST',
                 body: JSON.stringify({ text: englishText }),
                 headers: {
@@ -98,6 +115,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             if (data.translatedText) {
                 const spanishText = data.translatedText;
                 historicalInfo.innerHTML = `Detectado: ${spanishText}`;
+                console.log("Texto traducido:", spanishText);
                 fetchWikipediaInfo(spanishText);
                 fetchWikimediaImages(spanishText, latitude, longitude); // Pasar coordenadas GPS
             } else {
@@ -109,6 +127,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
             fetchWikimediaImages(englishText, latitude, longitude); // Pasar coordenadas GPS
         }
     }
+
+    // Funciones adicionales para Wikipedia, imágenes históricas, etc., permanecen igual...
+});
+
 
     // Obtener información de Wikipedia
     async function fetchWikipediaInfo(query) {
