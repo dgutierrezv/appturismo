@@ -1,18 +1,10 @@
-
 const express = require('express');
+const fetch = require('node-fetch');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
-// Permitir CORS para que el frontend pueda hacer solicitudes al backend
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    next();
-});
 
 // Ruta para procesar la imagen con Google Cloud Vision
 app.post('/process-image', async (req, res) => {
@@ -20,8 +12,7 @@ app.post('/process-image', async (req, res) => {
     const googleCloudVisionApiKey = process.env.GOOGLE_CLOUD_VISION_API_KEY;
 
     try {
-        const fetch = await import('node-fetch');
-        const response = await fetch.default(`https://vision.googleapis.com/v1/images:annotate?key=${googleCloudVisionApiKey}`, {
+        const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${googleCloudVisionApiKey}`, {
             method: 'POST',
             body: JSON.stringify({
                 requests: [
@@ -57,8 +48,7 @@ app.post('/translate', async (req, res) => {
     const googleTranslateApiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
 
     try {
-        const fetch = await import('node-fetch');
-        const response = await fetch.default(`https://translation.googleapis.com/language/translate/v2?key=${googleTranslateApiKey}`, {
+        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${googleTranslateApiKey}`, {
             method: 'POST',
             body: JSON.stringify({
                 q: text,
@@ -82,7 +72,5 @@ app.post('/translate', async (req, res) => {
     }
 });
 
-// Iniciar el servidor
-app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
-});
+// Exporta el app para que Vercel lo maneje como una Serverless Function
+module.exports = app;

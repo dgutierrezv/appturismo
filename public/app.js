@@ -44,19 +44,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Llamar a la función para manejar la cámara
     handleCameraAccess();
 
-    // Capturar la imagen al hacer clic en el botón
+    // Capturar la imagen
     snapButton.addEventListener('click', () => {
-        // Asegurarse de que el video esté reproduciéndose
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/png');
-            processImage(imageData);
-        } else {
-            alert("La cámara aún no está lista. Intenta de nuevo en un momento.");
-        }
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
+        processImage(imageData);
     });
 
     // Obtener ubicación GPS
@@ -85,7 +78,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
             const data = await response.json();
             // Aquí manejas la respuesta que viene del backend...
-            console.log("Imagen procesada:", data);
         } catch (error) {
             console.error("Error al procesar la imagen:", error);
         }
