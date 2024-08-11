@@ -35,40 +35,17 @@ app.post('/process-image', async (req, res) => {
         });
 
         const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        console.error("Error al procesar la imagen:", error);
-        res.status(500).send("Error al procesar la imagen.");
-    }
-});
 
-// Nueva ruta para traducir texto con Google Translate
-app.post('/translate', async (req, res) => {
-    const text = req.body.text;
-    const googleTranslateApiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
-
-    try {
-        const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${googleTranslateApiKey}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                q: text,
-                target: 'es',
-                format: 'text'
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const data = await response.json();
-        if (data.data && data.data.translations && data.data.translations[0]) {
-            res.json({ translatedText: data.data.translations[0].translatedText });
+        // Verificar si la respuesta de Google contiene errores
+        if (response.ok) {
+            res.json(data);
         } else {
-            res.status(500).send("Error en la estructura de la respuesta de la traducción.");
+            console.error("Error en la respuesta de Google Cloud Vision:", data);
+            res.status(500).json({ error: "Error procesando la imagen en Google Cloud Vision API" });
         }
     } catch (error) {
-        console.error("Error al traducir el texto:", error);
-        res.status(500).send("Error al traducir el texto.");
+        console.error("Error en el servidor al procesar la imagen:", error);
+        res.status(500).json({ error: "Error en el servidor al procesar la imagen" });
     }
 });
 
