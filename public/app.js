@@ -169,7 +169,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
                 const pages = data.query.search.slice(0, 3); // Limitar a 3 resultados
                 for (const page of pages) {
-                    const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url&titles=File:${encodeURIComponent(page.title)}&format=json&origin=*`);
+                    const title = page.title.replace(/File:/, ""); // Eliminar el prefijo 'File:' si está presente
+                    const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&format=json&origin=*`);
                     const imageData = await imageResponse.json();
     
                     console.log("Datos de la imagen:", imageData);
@@ -183,6 +184,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         img.alt = page.title;
                         img.style.maxWidth = "200px"; // Ajusta el tamaño de las imágenes si es necesario
                         pastImages.appendChild(img);
+                    } else {
+                        console.log(`No se encontró una URL de imagen válida para el archivo ${title}`);
                     }
                 }
             } else {
