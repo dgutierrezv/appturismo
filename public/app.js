@@ -128,10 +128,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    // Funciones adicionales para Wikipedia, imágenes históricas, etc., permanecen igual...
-});
-
-
     // Obtener información de Wikipedia
     async function fetchWikipediaInfo(query) {
         try {
