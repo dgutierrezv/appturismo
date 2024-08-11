@@ -134,7 +134,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const data = await response.json();
 
             if (data.extract) {
-                historicalInfo.innerHTML = `Reseña histórica: ${data.extract}`;
+                // Mejorar la reseña histórica agregando más detalles si están disponibles
+                let historicalContent = data.extract;
+                if (data.description) {
+                    historicalContent = `<strong>${data.description}</strong><br><br>${historicalContent}`;
+                }
+                if (data.content_urls) {
+                    historicalContent += `<br><a href="${data.content_urls.desktop.page}" target="_blank">Leer más en Wikipedia</a>`;
+                }
+                historicalInfo.innerHTML = `Reseña histórica: ${historicalContent}`;
             } else {
                 historicalInfo.innerHTML = "No se encontró información histórica.";
             }
@@ -144,33 +152,61 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
+
     // Obtener imágenes históricas de Wikimedia
     async function fetchWikimediaImages(searchTerm, latitude, longitude) {
         try {
-            const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${latitude}|${longitude}&ggsradius=10000&ggslimit=3&prop=pageimages|coordinates&pithumbsize=500&format=json&origin=*`);
-            const data = await response.json();
-    
-            if (data.query && data.query.pages) {
+            // Primer intento: buscar imágenes usando el término de búsqueda
+            let response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`);
+            let data = await response.json();
+            
+            if (data.query && data.query.search.length > 0) {
                 pastImages.innerHTML = ""; // Limpiar imágenes anteriores
-    
-                Object.values(data.query.pages).forEach(page => {
-                    if (page.thumbnail) {
+                
+                const pages = data.query.search.slice(0, 3); // Limitar a 3 resultados
+                for (const page of pages) {
+                    const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url&titles=File:${encodeURIComponent(page.title)}&format=json&origin=*`);
+                    const imageData = await imageResponse.json();
+                    
+                    const pageKey = Object.keys(imageData.query.pages)[0];
+                    const imageUrl = imageData.query.pages[pageKey]?.imageinfo?.[0]?.url;
+
+                    if (imageUrl) {
                         const img = document.createElement('img');
-                        img.src = page.thumbnail.source;
+                        img.src = imageUrl;
                         img.alt = page.title;
                         img.style.maxWidth = "200px"; // Ajusta el tamaño de las imágenes si es necesario
                         pastImages.appendChild(img);
-                    } else {
-                        console.log(`No se encontró una miniatura para la página ${page.title}`);
                     }
-                });
+                }
             } else {
-                pastImages.innerHTML = "No se encontraron imágenes históricas.";
+                // Si no se encontraron imágenes por el término de búsqueda, intentar por coordenadas
+                console.log("No se encontraron imágenes relevantes por descripción. Buscando por coordenadas...");
+
+                response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${latitude}|${longitude}&ggsradius=10000&ggslimit=3&prop=pageimages|coordinates&pithumbsize=500&format=json&origin=*`);
+                data = await response.json();
+
+                if (data.query && data.query.pages) {
+                    pastImages.innerHTML = ""; // Limpiar imágenes anteriores
+                    
+                    Object.values(data.query.pages).forEach(page => {
+                        if (page.thumbnail) {
+                            const img = document.createElement('img');
+                            img.src = page.thumbnail.source;
+                            img.alt = page.title;
+                            img.style.maxWidth = "200px"; // Ajusta el tamaño de las imágenes si es necesario
+                            pastImages.appendChild(img);
+                        } else {
+                            console.log(`No se encontró una miniatura para la página ${page.title}`);
+                        }
+                    });
+                } else {
+                    pastImages.innerHTML = "No se encontraron imágenes históricas.";
+                }
             }
         } catch (error) {
             console.error("Error al obtener las imágenes de Wikimedia:", error);
             pastImages.innerHTML = "Error al obtener imágenes históricas.";
         }
     }
-    
 });
