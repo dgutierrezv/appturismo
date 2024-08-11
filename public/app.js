@@ -156,21 +156,27 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Obtener imágenes históricas de Wikimedia
     async function fetchWikimediaImages(searchTerm, latitude, longitude) {
         try {
+            console.log(`Buscando imágenes para: ${searchTerm}`);
+    
             // Primer intento: buscar imágenes usando el término de búsqueda
             let response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`);
             let data = await response.json();
             
+            console.log("Datos recibidos de la búsqueda por término:", data);
+    
             if (data.query && data.query.search.length > 0) {
                 pastImages.innerHTML = ""; // Limpiar imágenes anteriores
-                
+    
                 const pages = data.query.search.slice(0, 3); // Limitar a 3 resultados
                 for (const page of pages) {
                     const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url&titles=File:${encodeURIComponent(page.title)}&format=json&origin=*`);
                     const imageData = await imageResponse.json();
-                    
+    
+                    console.log("Datos de la imagen:", imageData);
+    
                     const pageKey = Object.keys(imageData.query.pages)[0];
                     const imageUrl = imageData.query.pages[pageKey]?.imageinfo?.[0]?.url;
-
+    
                     if (imageUrl) {
                         const img = document.createElement('img');
                         img.src = imageUrl;
@@ -182,13 +188,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
             } else {
                 // Si no se encontraron imágenes por el término de búsqueda, intentar por coordenadas
                 console.log("No se encontraron imágenes relevantes por descripción. Buscando por coordenadas...");
-
+    
                 response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${latitude}|${longitude}&ggsradius=10000&ggslimit=3&prop=pageimages|coordinates&pithumbsize=500&format=json&origin=*`);
                 data = await response.json();
-
+    
+                console.log("Datos recibidos de la búsqueda por coordenadas:", data);
+    
                 if (data.query && data.query.pages) {
                     pastImages.innerHTML = ""; // Limpiar imágenes anteriores
-                    
+    
                     Object.values(data.query.pages).forEach(page => {
                         if (page.thumbnail) {
                             const img = document.createElement('img');
