@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Procesar la imagen con el backend
     async function processImage(imageData) {
         try {
-            const response = await fetch('http://localhost:3000/api/process-image', {
+            const response = await fetch('/api/process-image', {
                 method: 'POST',
                 body: JSON.stringify({ imageData: imageData.split(',')[1] }),
                 headers: {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // Traducir el nombre del lugar al español usando el backend
     async function translateToSpanish(englishText) {
         try {
-            const response = await fetch('http://localhost:3000/api/translate', {
+            const response = await fetch('/api/translate', {
                 method: 'POST',
                 body: JSON.stringify({ text: englishText }),
                 headers: {
