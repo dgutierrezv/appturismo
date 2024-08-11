@@ -1,18 +1,28 @@
 const express = require('express');
-const fetch = require('node-fetch');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 
-app.use(express.json());
+// Configurar CORS para permitir solicitudes desde http://127.0.0.1:5500
+app.use(cors({
+    origin: 'http://127.0.0.1:5500',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+}));
+
+// Aumentar el límite de tamaño de carga
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Ruta para procesar la imagen con Google Cloud Vision
-app.post('/process-image', async (req, res) => {
+app.post('/api/process-image', async (req, res) => {
     const imageData = req.body.imageData;
     const googleCloudVisionApiKey = process.env.GOOGLE_CLOUD_VISION_API_KEY;
 
     try {
-        const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${googleCloudVisionApiKey}`, {
+        const fetch = await import('node-fetch');
+        const response = await fetch.default(`https://vision.googleapis.com/v1/images:annotate?key=${googleCloudVisionApiKey}`, {
             method: 'POST',
             body: JSON.stringify({
                 requests: [
@@ -36,7 +46,6 @@ app.post('/process-image', async (req, res) => {
 
         const data = await response.json();
 
-        // Verificar si la respuesta de Google contiene errores
         if (response.ok) {
             res.json(data);
         } else {
@@ -49,5 +58,41 @@ app.post('/process-image', async (req, res) => {
     }
 });
 
-// Exporta el app para que Vercel lo maneje como una Serverless Function
+// Ruta para traducir texto con Google Translate
+app.post('/api/translate', async (req, res) => {
+    const text = req.body.text;
+    const googleTranslateApiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
+
+    try {
+        const fetch = await import('node-fetch');
+        const response = await fetch.default(`https://translation.googleapis.com/language/translate/v2?key=${googleTranslateApiKey}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                q: text,
+                target: 'es',
+                format: 'text'
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            res.json({ translatedText: data.data.translations[0].translatedText });
+        } else {
+            console.error("Error en la respuesta de Google Translate:", data);
+            res.status(500).json({ error: "Error procesando la traducción en Google Translate API" });
+        }
+    } catch (error) {
+        console.error("Error en el servidor al traducir el texto:", error);
+        res.status(500).json({ error: "Error en el servidor al traducir el texto" });
+    }
+});
+
+// Iniciar el servidor
+app.listen(3000, () => {
+    console.log('Servidor corriendo en el puerto 3000');
+});
+
 module.exports = app;
