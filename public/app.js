@@ -169,8 +169,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
                 const pages = data.query.search.slice(0, 3); // Limitar a 3 resultados
                 for (const page of pages) {
-                    const title = page.title.replace(/File:/, ""); // Eliminar el prefijo 'File:' si está presente
-                    const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&format=json&origin=*`);
+                    // Aquí, intentamos obtener la imagen utilizando el título exacto del archivo
+                    const title = page.title.includes('File:') ? page.title : `File:${page.title}`;
+                    const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&format=json&origin=*`);
                     const imageData = await imageResponse.json();
     
                     console.log("Datos de la imagen:", imageData);
