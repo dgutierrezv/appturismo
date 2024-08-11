@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             console.log(`Buscando imágenes para: ${searchTerm}`);
     
             // Primer intento: buscar imágenes usando el término de búsqueda
-            let response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`);
+            let response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&srwhat=text&srnamespace=6&format=json&origin=*`);
             let data = await response.json();
             
             console.log("Datos recibidos de la búsqueda por término:", data);
@@ -169,8 +169,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
                 const pages = data.query.search.slice(0, 3); // Limitar a 3 resultados
                 for (const page of pages) {
-                    // Aquí, intentamos obtener la imagen utilizando el título exacto del archivo
-                    const title = page.title.includes('File:') ? page.title : `File:${page.title}`;
+                    const title = `File:${page.title.replace('File:', '')}`;
                     const imageResponse = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=imageinfo&iiprop=url&format=json&origin=*`);
                     const imageData = await imageResponse.json();
     
@@ -221,4 +220,5 @@ document.addEventListener('DOMContentLoaded', (event) => {
             pastImages.innerHTML = "Error al obtener imágenes históricas.";
         }
     }
+    
 });
